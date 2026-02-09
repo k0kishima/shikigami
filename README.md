@@ -1,6 +1,10 @@
 # Shikigami
 
 <p align='center'>
+  <img src="assets/social-preview.png" width="720" alt="shikigami" />
+</p>
+
+<p align='center'>
   English | <a href='./README.ja.md'>日本語</a>
 </p>
 

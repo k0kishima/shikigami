@@ -22,3 +22,7 @@ Shikigami is a tool that leverages AI to streamline software development.
 - Shikigami's orchestrator conducts interviews with users until requirements are finalized, so users must be able to respond to these
   - Users need domain knowledge about the software they want to develop
   - Users are expected to make clear decisions on technical questions (e.g., database selection, framework choices)
+
+## Design
+
+- [Purpose of Orchestration](./docs/purpose-of-orchestration.md)

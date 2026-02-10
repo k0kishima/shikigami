@@ -12,10 +12,37 @@ if [ -z "$SHIKIGAMI_HOME" ]; then
   SHIKIGAMI_HOME="$(dirname "$SCRIPT_DIR")"
 fi
 
-# Check if Claude Code is installed
-if ! command -v claude &> /dev/null; then
-  echo "Error: Claude Code is not installed."
-  echo "Please install it first: https://claude.ai/code"
+MIN_CLAUDE_VERSION="2.1.32"
+
+# Resolve claude binary: prefer ~/.claude/local/claude, fall back to PATH
+# Claude Code's native installer puts the binary at ~/.claude/local/claude,
+# but package managers (e.g., Volta, npm global) may install an older version
+# that appears earlier in PATH. We prioritize the native install to avoid
+# version mismatches in non-interactive shells (scripts don't inherit aliases).
+if [[ -x "$HOME/.claude/local/claude" ]]; then
+  CLAUDE="$HOME/.claude/local/claude"
+elif command -v claude &>/dev/null; then
+  CLAUDE="$(command -v claude)"
+else
+  echo "Error: claude command not found."
+  echo "Install Claude Code: https://claude.ai/code"
+  exit 1
+fi
+
+# Check: claude version >= MIN_CLAUDE_VERSION
+claude_version=$("$CLAUDE" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+if [[ -z "$claude_version" ]]; then
+  echo "Error: could not determine Claude Code version."
+  exit 1
+fi
+
+version_gte() {
+  printf '%s\n%s\n' "$2" "$1" | sort -V -C
+}
+
+if ! version_gte "$claude_version" "$MIN_CLAUDE_VERSION"; then
+  echo "Error: Claude Code >= $MIN_CLAUDE_VERSION is required (found $claude_version)."
+  echo "Run: claude update"
   exit 1
 fi
 
@@ -91,4 +118,4 @@ echo "Agent Teams enabled: $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"
 echo ""
 
 # Launch Claude Code with the orchestrator role
-exec claude --system-prompt "$SYSTEM_PROMPT" "$@"
+exec "$CLAUDE" --system-prompt "$SYSTEM_PROMPT" "$@"

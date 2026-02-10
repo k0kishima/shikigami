@@ -4,10 +4,10 @@
   English | <a href='./purpose-of-orchestration.ja.md'>日本語</a>
 </p>
 
-The purpose of orchestrating AI agents is to overcome LLM non-determinism and obtain high-quality outputs while minimizing human intervention.  
-To achieve this, we adopt parallelization and hierarchical structuring.
+The purpose of orchestrating AI agents is to overcome LLM non-determinism and obtain high-quality outputs while minimizing human intervention.
+To achieve this, we adopt parallelization and layering.
 
-## Addressing LLM's "Gacha" Nature Through Parallelization
+## Ensuring Diversity of Solutions Through Parallelization
 
 ### The Non-Deterministic Nature of AI
 
@@ -22,58 +22,46 @@ To achieve this, we adopt parallelization and hierarchical structuring.
 - A simple and effective strategy for this problem is to increase the number of samples (trial attempts)
 - Parallel execution is an implementation solution that ensures output diversity without increasing wall-time (the actual time humans wait)
 
-### Conclusion
+### Summary
 
 - Current LLMs inherently perform non-deterministic response generation
 - Therefore, generating multiple samples simultaneously is statistically more advantageous than sequential single trials
 - We adopt parallel execution as the implementation means to "obtain multiple samples simultaneously"
 
-## Adding Upper Layers to Compensate for Parallelization Limits
+## Convergence and Output Optimization Through Layering
 
-### Parallelization Alone Is Insufficient
+### Limitations of Parallelization
 
 - Parallelization simply samples the same problem independently n times
-- "Quantity" increases, but "quality" does not automatically improve
-- With parallelization alone, humans still need to read all the increased responses and find the optimal solution among them
+- Parallelization itself does not perform any "relative evaluation" or "selection" of generation results
+  - Operating with this alone, users still need to read all the increased responses and find the optimal solution among them
+- In other words, "quantity" increases, but "quality" does not automatically improve
 
 ### Adding Upper Layers to Converge Parallelization
 
-- Parallelization itself does not perform any "relative evaluation" or "selection" of generation results
-- We address this problem by placing a meta-evaluation layer one level above the parallel execution layer
-- By overseeing multiple proposals and performing comparison, integration, and rejection, we converge the parallel layer's output into "usable solutions"
+- We address the problem from the previous section by placing a meta-evaluation layer one level above the parallel execution layer
+- The upper layer oversees multiple proposals submitted by lower layers, performing comparison, integration, and rejection to converge outputs into "usable solutions"
 
-### Conclusion
+### Dynamic Layer Design According to Requirements
 
-- Parallelization ensures diversity of solutions, and the layer above performs efficient convergence—this is the evaluation layer
-- Evaluation and decision-making are separate tasks
-  - Evaluation is "judging the quality of each proposal," while decision-making is "deciding which proposal to adopt"
-  - Separating these maintains consistency in evaluation criteria while enabling flexible decision-making according to context
-- Based on this concept, for example, a configuration where a decision-making layer is placed above the evaluation layer can be considered
-- However, this is a principle of layer separation, and actual hierarchical structures are designed dynamically according to requirements
+- Layers are not divided solely for the purpose of converging parallelization
+- They can also be separated by roles such as evaluation and decision-making
+- Rather than applying a pre-fixed layer structure, optimal layer structures should be designed after analyzing requirements
+- In Shikigami, an AI agent with the role of orchestrator is placed as the interface with users
+  - The orchestrator performs requirements analysis based on user prompts and dynamically generates a task force with the optimal configuration for the requirements
 
-## Automating Up to Decision-Making Through Hierarchical Structuring
+### Temperature Principles in Layer Design
 
-### Dynamic Hierarchical Design According to Requirements
-
-- The number of layers and the role of each layer in hierarchical structuring should vary according to the nature of the task
-- Rather than applying a pre-fixed hierarchical structure, optimal hierarchical structures should be designed after analyzing requirements
-- In Shikigami, the orchestrator performs requirements analysis and dynamically generates a task force with the optimal configuration for that task
-  - Simple tasks: Shallow hierarchy (e.g., 2 layers: generation → decision-making)
-  - Standard tasks: Medium hierarchy (e.g., 3 layers: generation → evaluation → decision-making)
-  - Complex tasks: Deep hierarchy (e.g., 5 layers: research → generation → evaluation → integration → decision-making)
-- By optimizing the hierarchical structure itself according to requirements, we avoid excessive complexity while ensuring necessary quality
-
-### Temperature Principles in Hierarchical Design
-
-- In the hierarchy designed by the orchestrator, each layer's temperature is set according to its role
-- Temperature is a parameter that controls the trade-off between creativity (diversity) and determinism
+- The temperature[^1] of each layer designed by the orchestrator is set according to its role
 - Layers responsible for exploration have higher temperature, making the probability distribution flatter
   - To emphasize diversity and creativity
 - Layers responsible for convergence have lower temperature, making the probability distribution sharper
   - To perform stable decision-making
 
-### Conclusion
+### Summary
 
-- Hierarchical structuring improves efficiency and accuracy through role separation and temperature gradients
-- However, the optimal hierarchical structure differs for each task
-- Shikigami's orchestrator dynamically designs the optimal hierarchical structure based on requirements analysis and realizes it as a task force
+- Rather than applying a pre-fixed layer structure, design and apply optimal layer structures after analyzing requirements
+  - This leads to resource reduction and ensuring output quality
+- Users only need to review the final output and do not need to intervene in the intermediate processes at each layer
+
+[^1]: Temperature is a parameter that controls the trade-off between creativity (diversity) and determinism.

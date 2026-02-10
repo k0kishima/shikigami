@@ -58,4 +58,5 @@ The orchestrator will start and guide you through the requirements analysis proc
 
 - [Ubiquitous Language](./docs/glossary.md)
 - [Purpose of Orchestration](./docs/purpose-of-orchestration.md)
+- [How Orchestration Works](./docs/orchestration-mechanism.md)
 - [Role Definition Guide](./docs/role-definition-guide.md)

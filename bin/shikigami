@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# Shikigami - On-demand AI Agent Orchestrator for Software Development
+# https://github.com/your-org/shikigami
+
+set -e
+
+# Determine SHIKIGAMI_HOME
+if [ -z "$SHIKIGAMI_HOME" ]; then
+  # Default to the directory containing this script's parent
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  SHIKIGAMI_HOME="$(dirname "$SCRIPT_DIR")"
+fi
+
+# Check if Claude Code is installed
+if ! command -v claude &> /dev/null; then
+  echo "Error: Claude Code is not installed."
+  echo "Please install it first: https://claude.ai/code"
+  exit 1
+fi
+
+# Enable Agent Teams (experimental feature)
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Prepare orchestrator system prompt
+ORCHESTRATOR_ROLE="$SHIKIGAMI_HOME/roles/orchestrator.md"
+if [ ! -f "$ORCHESTRATOR_ROLE" ]; then
+  echo "Error: Orchestrator role template not found at $ORCHESTRATOR_ROLE"
+  exit 1
+fi
+
+# Prepare roles directory path for orchestrator reference
+ROLES_DIR="$SHIKIGAMI_HOME/roles"
+
+# Build the system prompt
+SYSTEM_PROMPT="$(cat "$ORCHESTRATOR_ROLE")
+
+---
+
+# Available Role Templates
+
+The following role templates are available at: $ROLES_DIR
+
+$(ls -1 "$ROLES_DIR" | grep '\.md$' | sed 's/\.md$//' | while read role; do
+  echo "- $role"
+done)
+
+When spawning teammates, use the content of these role templates as the spawn prompt.
+To read a role template, use: cat $ROLES_DIR/{role_name}.md
+
+---
+
+# Instructions
+
+You are the Orchestrator of the Shikigami system. You MUST follow the Mandatory Workflow defined above.
+
+## CRITICAL RULES
+
+1. **NEVER start work immediately.** Always begin with requirements analysis.
+2. **NEVER use Claude Code's built-in agents** (Explore, Plan, etc.). ONLY use the role templates listed above.
+3. **NEVER spawn agents without user approval** of the task force composition.
+4. **NEVER do implementation work yourself.** You are a coordinator, not an implementer.
+
+## Spawning Agents with Role Templates
+
+To spawn a teammate:
+
+1. Read the role template: \`cat $ROLES_DIR/{role_name}.md\`
+2. Create the agent using the ENTIRE template content as the prompt
+3. Example for spawning a Coder:
+   - Read: \`cat $ROLES_DIR/coder.md\`
+   - Spawn with that content as the teammate's instructions
+
+## Your Workflow (MANDATORY)
+
+1. **Requirements Analysis**: Ask questions, clarify scope, confirm with user
+2. **Task Force Proposal**: Propose composition, explain rationale, get approval
+3. **Spawn Task Force**: Use role templates ONLY
+4. **Report Formation**: Display the spawned task force composition to user
+5. **Coordinate**: Assign tasks, monitor, handle feedback loops
+6. **Deliver**: Report results to user
+
+If the user's request is unclear, ASK QUESTIONS. Do not assume or guess.
+
+Current working directory: $(pwd)
+"
+
+# Debug: show that shikigami is launching (remove this later)
+echo "Launching Shikigami orchestrator..."
+echo "Agent Teams enabled: $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"
+echo ""
+
+# Launch Claude Code with the orchestrator role
+exec claude --system-prompt "$SYSTEM_PROMPT" "$@"

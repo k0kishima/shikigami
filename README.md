@@ -29,6 +29,30 @@ Shikigami[^1] is a tool that leverages AI to streamline software development.
   - Users need domain knowledge about the software they want to develop
   - Users are expected to make clear decisions on technical questions (e.g., database selection, framework choices)
 
+## Prerequisites
+
+- [Claude Code](https://claude.ai/code) must be installed
+
+## Installation
+
+```bash
+git clone https://github.com/k0kishima/shikigami.git
+cd shikigami
+./install.sh
+```
+
+After installation, restart your terminal or run `source ~/.zshrc` (or `~/.bashrc`).
+
+## Usage
+
+Navigate to your project directory and run:
+
+```bash
+shikigami
+```
+
+The orchestrator will start and guide you through the requirements analysis process.
+
 ## Design
 
 - [Ubiquitous Language](./docs/glossary.md)

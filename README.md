@@ -31,4 +31,5 @@ Shikigami[^1] is a tool that leverages AI to streamline software development.
 
 ## Design
 
+- [Ubiquitous Language](./docs/glossary.md)
 - [Purpose of Orchestration](./docs/purpose-of-orchestration.md)

@@ -12,7 +12,9 @@ An on-demand AI agent orchestrator specialized for software development.
 
 ## What is this?
 
-Shikigami is a tool that leverages AI to streamline software development.
+Shikigami[^1] is a tool that leverages AI to streamline software development.
+
+[^1]: Named after spiritual servants summoned by Onmyoji (ancient Japanese court sorcerers). Each AI agent is likened to a shikigami—created with the user's intent and serving their purposes.
 
 - It uses AI agent orchestration as the primary means to achieve goals
 - Users interact only with an orchestrator-role AI agent. When users convey their initial request, the orchestrator begins requirements analysis

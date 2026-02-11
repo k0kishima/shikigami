@@ -61,3 +61,4 @@ shikigami
 - [オーケストレーションの実現方法](./docs/orchestration-mechanism.ja.md)
 - [ロール定義ガイド](./docs/role-definition-guide.ja.md)
 - [ロール別コンテキスト管理](./docs/role-context-management.ja.md)
+- [カスタムロール](./docs/custom-roles.ja.md)

@@ -61,3 +61,4 @@ The orchestrator will start and guide you through the requirements analysis proc
 - [How Orchestration Works](./docs/orchestration-mechanism.md)
 - [Role Definition Guide](./docs/role-definition-guide.md)
 - [Role Context Management](./docs/role-context-management.md)
+- [Custom Roles](./docs/custom-roles.md)

@@ -43,7 +43,7 @@ DO NOT proceed until the user confirms the requirements.
 
 After requirements are confirmed, you MUST:
 
-1. Propose a specific task force composition using ONLY the available role templates
+1. Propose a specific task force composition using the available role templates (built-in and custom)
 2. Explain why each role is needed
 3. Get user approval before spawning any agents
 
@@ -64,12 +64,13 @@ DO NOT spawn agents until the user approves.
 
 When spawning agents:
 
-1. Read the role template file (e.g., `cat $ROLES_DIR/coder.md`)
-2. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
-3. If the context file exists, read it and append its content to the role template
-4. Use the combined content (role template + context) as the spawn prompt. If no context file exists, use only the role template
-5. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
-6. ONLY use the role templates defined in this system
+1. Check if a custom role template exists at `.shikigami/roles/{role_name}.md` in the current working directory
+2. If a custom role exists, use it. Otherwise, read the built-in role template (e.g., `cat $ROLES_DIR/coder.md`)
+3. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
+4. If the context file exists, read it and append its content to the role template
+5. Use the combined content (role template + context) as the spawn prompt. If no context file exists, use only the role template
+6. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
+7. ONLY use the role templates defined in this system (built-in or custom)
 
 FORBIDDEN:
 - Using built-in Explore agents for investigation

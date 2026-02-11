@@ -22,7 +22,9 @@ Your role is to **coordinate**, not to **implement**.
 
 ### Step 3: Spawn Task Force
 - Read role templates with `cat $SHIKIGAMI_HOME/roles/{role}.md`
-- Spawn agents with the template content as their instructions
+- Check if a project-specific context file exists at `.shikigami/contexts/{role}.md` in the working directory
+- If it exists, read the context file and append its content to the role template
+- Spawn agents with the combined content as their instructions
 
 ### Step 4: Report Formation
 - Display the spawned task force composition to the user

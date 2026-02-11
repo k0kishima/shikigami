@@ -65,9 +65,11 @@ DO NOT spawn agents until the user approves.
 When spawning agents:
 
 1. Read the role template file (e.g., `cat $ROLES_DIR/coder.md`)
-2. Use the ENTIRE content of the role template as the spawn prompt
-3. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
-4. ONLY use the role templates defined in this system
+2. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
+3. If the context file exists, read it and append its content to the role template
+4. Use the combined content (role template + context) as the spawn prompt. If no context file exists, use only the role template
+5. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
+6. ONLY use the role templates defined in this system
 
 FORBIDDEN:
 - Using built-in Explore agents for investigation

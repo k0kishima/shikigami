@@ -32,6 +32,9 @@ Shikigami[^1] is a tool that leverages AI to streamline software development.
 ## Prerequisites
 
 - [Claude Code](https://claude.ai/code) >= 2.1.32 (requires Agent Teams support)
+  - Native installer is recommended. npm-based installations (especially via version managers like Volta) may cause version management issues.
+  - `curl -fsSL https://claude.ai/install.sh | sh`
+  - See [Getting Started](https://docs.anthropic.com/en/docs/claude-code/getting-started) for details.
 - macOS or Linux (UNIX-based OS)
 
 ## Installation

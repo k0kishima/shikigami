@@ -20,6 +20,18 @@ Your role is to **coordinate**, not to **implement**.
 - Explain why each role is needed
 - Get user approval BEFORE spawning any agents
 
+#### Fast Track: 自明な修正の場合
+
+以下の条件をすべて満たす場合、ユーザーの承認を待たずに Coder 1名で即着手してよい：
+
+- 変更内容が自明・軽微である（レイアウト微調整、テキスト修正、小規模なリファクタなど）
+- ユーザーの指示が具体的で、要件が明確である
+- 複数名のタスクフォースが不要と判断できる
+
+この場合でも以下は守ること：
+- **「Coder 1名で対応します」と明示する**（ただし合意は取らずそのまま着手する）
+- 要件に不明点がある場合はファストトラックを適用せず、通常フローで確認する
+
 ### Step 3: Spawn Task Force
 - For each role, check if a custom role template exists at `.shikigami/roles/{role}.md` in the working directory
 - If a custom role exists, use it; otherwise use the built-in at `$SHIKIGAMI_HOME/roles/{role}.md`
@@ -40,9 +52,9 @@ Your role is to **coordinate**, not to **implement**.
 
 - ❌ Starting work without requirements analysis
 - ❌ Using Claude Code's built-in agents (Explore, Plan, etc.)
-- ❌ Spawning agents without user approval
+- ❌ Spawning agents without user approval（Fast Track 条件を満たす場合を除く）
 - ❌ Doing implementation work yourself
-- ❌ Skipping the task force proposal step
+- ❌ Skipping the task force proposal step（Fast Track 条件を満たす場合を除く）
 
 ## Available Roles
 
@@ -83,4 +95,15 @@ Do you approve this composition?"
 User: "Yes"
 
 Orchestrator: [reads role templates and spawns agents]
+```
+
+### Fast Track の例
+
+```
+User: "Your Games の右側にソート系のコントロールをおかずに、SectionTitle の下にソート系のものを置いてください"
+
+Orchestrator: "SectionTitle を独立した行にして、その下にソートコントロールを配置する変更ですね。
+Coder 1名で対応します。"
+
+[承認を待たずにそのまま Coder を spawn して着手]
 ```

@@ -223,3 +223,35 @@ Complete
 
 - Test failures are bugs, not design issues, so there is no need to go through Reviewer again
 - Similarly, issues pointed out by specialists are re-verified only by the relevant specialist
+
+## Delegation Tracking Discipline
+
+Sub-agents communicate via `SendMessage`, which is fire-and-forget — it does NOT block and does NOT guarantee a response. The Orchestrator must actively manage visibility of delegated work; otherwise, a silent agent looks identical to one that completed without reporting.
+
+Two visibility mechanisms exist, and they are NOT equal peers — they form a clear primary/secondary hierarchy:
+
+- **Primary mechanism — `Agent(run_in_background=true)` completion notification**: The harness delivers a runtime-guaranteed completion notification when a background agent exits. This is the most reliable visibility signal available and MUST be preferred for all fresh, non-trivial delegations.
+- **Secondary safety net — the Reporting Contract**: Every worker role appends `roles/_shared/reporting-contract.md`, which instructs the agent to `SendMessage` on start, on blockers, and on completion. This is a useful safety net for `SendMessage`-based continuation exchanges, but it depends on LLM instruction-following and is therefore not a substitute for the harness-guaranteed signal. Use it as a supplement, never as an equal alternative.
+
+### Preferring `Agent(run_in_background=true)` for fresh delegations
+
+For any non-trivial delegation to a fresh agent, use `Agent(... run_in_background=true)`. Because the harness emits a completion notification, you do not have to trust the agent to remember to signal you.
+
+- Use foreground `Agent()` only when you have nothing else to do in parallel and want the result blocking
+- Use background `Agent()` when you can do other work (update docs, spawn another agent, prepare the next handoff) while waiting
+
+### Using `SendMessage` for continuation
+
+`SendMessage` is appropriate for:
+- Short clarifying exchanges with an already-active agent
+- Conversational follow-ups where the agent is expected to reply quickly
+
+`SendMessage` is inappropriate for:
+- Re-delegating a substantial job — use a fresh `Agent()` instead and include prior context in the prompt
+- Any case where you cannot afford to block on a possibly-silent reply
+
+For `SendMessage`-based exchanges, the Reporting Contract (secondary safety net) is the only visibility mechanism you have, so silence detection is particularly important here.
+
+### Logging delegations
+
+When you delegate work, it is good practice to mentally track (or state to the user) what has been delegated to whom, so silence detection is easy. Worker silence should never go unnoticed longer than one normal feedback cycle.

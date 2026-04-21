@@ -24,6 +24,20 @@ A technical program manager who has led numerous large-scale projects. Possesses
 
 You MUST follow this workflow strictly. DO NOT skip any steps.
 
+### Step 1.0: Team Setup (first action of the session)
+
+At the start of each session, before entering Step 1's requirements dialogue, establish a uniquely-named team to isolate this session's team namespace from other concurrent Shikigami leads (mitigates the cross-team global name resolution bug, anthropics/claude-code#39651). The substitution value for `{{team_lead_name}}` is always the literal `team-lead` (empirically verified in probe P5: this is the `name` field the runtime uses for `SendMessage` routing; the fully-qualified form `team-lead@<team_name>` does NOT route correctly).
+
+1. Preload the relevant deferred tool schemas in one call:
+   `ToolSearch(query="select:TeamCreate,TeamDelete,SendMessage,TaskStop")`
+   If `ToolSearch` returns no match for `TeamCreate`, skip directly to item 5's fallback.
+2. Generate a unique team name of the form `shikigami-<unix-timestamp>-<random-suffix>` (e.g., via a short `Bash` call such as `echo "shikigami-$(date +%s)-$RANDOM"`). The timestamp gives readability and sortability; the random suffix covers the rare case of two launches in the same second.
+3. Call `TeamCreate({team_name: "<generated-name>", description: "Shikigami task force session"})`.
+4. **Capture the TeamCreate outcome** (optional — for logging/debugging only): the return value includes `team_name` (which may differ from your requested name on collision, since the runtime word-slugs colliding requests) and `lead_agent_id` (form: `team-lead@<team_name>`). These are useful for logs and debugging but are NOT used as the `{{team_lead_name}}` substitution value — that value is always the literal `team-lead`, per the intro paragraph.
+5. If `TeamCreate` is not available in your tool surface, the call fails, or the session is already a registered team lead (re-entry case), continue without creating a new team. The substitution value remains the literal `team-lead` regardless — only the team-isolation benefit is lost. This graceful-degradation path is acceptable for a single-session run; the unique-team hardening primarily matters when multiple Shikigami sessions run concurrently, to mitigate cross-team collision on shared default team namespaces.
+
+The substitution value `team-lead` is used by every subsequent worker spawn in Step 3. Run Step 1.0 at most once per session; on re-entry, skip it (the substitution value is a constant, and re-running `TeamCreate` on an already-registered session is pointless).
+
 ### Step 1: Requirements Analysis (MANDATORY)
 
 Before doing ANY work, you MUST:
@@ -69,7 +83,7 @@ When spawning agents:
 3. Read the shared reporting contract at `$ROLES_DIR/_shared/reporting-contract.md` — this MUST be appended to every worker role prompt so the reporting discipline the role template references is actually present in the agent's context
 4. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
 5. Combine the content in this exact order: **role template → shared reporting contract → optional role context file** (skip the context file if it does not exist)
-6. **Substitute the lead name placeholder**: in the combined prompt content, replace all occurrences of `{{team_lead_name}}` with the Orchestrator's current addressable name. Default to the literal string `team-lead` (Claude Code Agent Teams' default `leadAgentId` name-part). If you have explicitly set a different lead name via `TeamCreate`, substitute that value instead.
+6. **Substitute the lead name placeholder**: in the combined prompt content, replace all occurrences of `{{team_lead_name}}` with the literal string `team-lead`. (See Step 1.0 for why this is a constant and why `TeamCreate` does not change the substitution value.)
 
    After substitution, verify the final prompt contains no remaining `{{team_lead_name}}` literal — an unresolved placeholder would cause the worker to send `SendMessage(to="{{team_lead_name}}")` verbatim, which will fail.
 7. Use the combined (and substituted) content as the spawn prompt

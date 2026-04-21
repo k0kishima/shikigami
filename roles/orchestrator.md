@@ -252,6 +252,19 @@ For any non-trivial delegation to a fresh agent, use `Agent(... run_in_backgroun
 
 For `SendMessage`-based exchanges, the Reporting Contract (secondary safety net) is the only visibility mechanism you have, so silence detection is particularly important here.
 
+### When an agent goes silent
+
+LLM agents have no wall clock, so time-based heuristics ("waited N minutes") are unreliable. Use event-driven detection instead:
+
+1. Consider an agent silent when you have completed one subsequent coordination step (e.g., spawning another agent, updating the user, or finishing an independent task) without having received a `SendMessage` reply from it.
+2. At that point, send exactly one progress-check `SendMessage`.
+3. If the next coordination step also completes with no reply from the agent, treat the agent as stuck.
+4. Re-spawn a fresh agent via `Agent(run_in_background=true)` with a self-contained prompt that includes:
+   - The prior state (existing diffs, decisions already made)
+   - The outstanding change required
+   - The shared reporting contract (appended as usual per Step 3 spawning rules)
+5. Report the re-spawn decision to the user for transparency.
+
 ### Logging delegations
 
 When you delegate work, it is good practice to mentally track (or state to the user) what has been delegated to whom, so silence detection is easy. Worker silence should never go unnoticed longer than one normal feedback cycle.

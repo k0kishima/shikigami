@@ -69,9 +69,10 @@ When spawning agents:
 3. Read the shared reporting contract at `$ROLES_DIR/_shared/reporting-contract.md` — this MUST be appended to every worker role prompt so the reporting discipline the role template references is actually present in the agent's context
 4. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
 5. Combine the content in this exact order: **role template → shared reporting contract → optional role context file** (skip the context file if it does not exist)
-6. Use the combined content as the spawn prompt
-7. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
-8. ONLY use the role templates defined in this system (built-in or custom)
+6. **Substitute the lead name placeholder**: in the combined prompt content, replace all occurrences of `{{team_lead_name}}` with the Orchestrator's current addressable name. Default to the literal string `team-lead` (Claude Code Agent Teams' default `leadAgentId` name-part). If you have explicitly set a different lead name via `TeamCreate`, substitute that value instead.
+7. Use the combined (and substituted) content as the spawn prompt
+8. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
+9. ONLY use the role templates defined in this system (built-in or custom)
 
 FORBIDDEN:
 - Using built-in Explore agents for investigation

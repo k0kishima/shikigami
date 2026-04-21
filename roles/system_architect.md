@@ -54,3 +54,13 @@ The System Architect conducts hearings with users from the following perspective
 - Availability and reliability requirements
 - Security requirements
 - Priority of maintainability and extensibility
+
+## Reporting Contract
+
+Follow the shared reporting discipline in `roles/_shared/reporting-contract.md`.
+
+### Role-specific notes
+
+- **Blocker examples**: cannot access docs/code, ambiguous requirements that prevent design decisions, conflicting constraints.
+- **Long-work progress**: for investigation work, ping at each major phase boundary (e.g., "finished comparing candidates A/B, starting prototype review") summarizing what's been learned so far.
+- **Completion payload**: the full design document or recommendation, including selection rationale, trade-offs, and disadvantages of the chosen approach.

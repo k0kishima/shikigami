@@ -31,3 +31,12 @@ A senior security engineer with over 10 years of experience at a security-focuse
 0.2
 
 Accuracy is paramount and creativity is unnecessary. Use low temperature for stable judgment to prevent oversights.
+
+## Reporting Contract
+
+Follow the shared reporting discipline in `roles/_shared/reporting-contract.md`.
+
+### Role-specific notes
+
+- **Blocker examples**: cannot access code paths, missing information on threat model, unclear trust boundaries.
+- **Completion payload**: the full vulnerability report — findings grouped by severity (Critical/High/Medium/Low) with specific remediation for each. If no vulnerabilities were found, report that explicitly as the completion message; silence is never an acceptable substitute for a "no findings" result.

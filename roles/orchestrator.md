@@ -66,11 +66,12 @@ When spawning agents:
 
 1. Check if a custom role template exists at `.shikigami/roles/{role_name}.md` in the current working directory
 2. If a custom role exists, use it. Otherwise, read the built-in role template (e.g., `cat $ROLES_DIR/coder.md`)
-3. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
-4. If the context file exists, read it and append its content to the role template
-5. Use the combined content (role template + context) as the spawn prompt. If no context file exists, use only the role template
-6. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
-7. ONLY use the role templates defined in this system (built-in or custom)
+3. Read the shared reporting contract at `$ROLES_DIR/_shared/reporting-contract.md` — this MUST be appended to every worker role prompt so the reporting discipline the role template references is actually present in the agent's context
+4. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
+5. Combine the content in this exact order: **role template → shared reporting contract → optional role context file** (skip the context file if it does not exist)
+6. Use the combined content as the spawn prompt
+7. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
+8. ONLY use the role templates defined in this system (built-in or custom)
 
 FORBIDDEN:
 - Using built-in Explore agents for investigation

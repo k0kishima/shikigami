@@ -53,3 +53,14 @@ The Tester performs testing with the following strategy.
 - Error cases (invalid input, error conditions)
 - Edge cases (empty, null, special characters, etc.)
 - Concurrency (when applicable)
+
+## Reporting Contract
+
+Follow the shared reporting discipline in `roles/_shared/reporting-contract.md`.
+
+### Role-specific notes
+
+- **Blocker examples**: tests cannot be executed due to environment issues, unclear expected behavior, missing fixtures, flaky test infrastructure. Do NOT silently retry indefinitely or assume failures are acceptable.
+- **Test failures are NOT blockers**: Test failures are a normal result of evaluation. Report them in the completion message with reproduction steps; do not escalate them mid-work as blockers.
+- **Long-work progress**: for large test suites or E2E setup, ping at each major phase boundary (e.g., "unit suite passed, starting integration"; "fixtures provisioned, starting E2E run").
+- **Completion payload**: test results — pass/fail counts, failed cases with reproduction steps, coverage summary if applicable.

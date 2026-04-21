@@ -56,3 +56,13 @@ Common principles regardless of paradigm:
 - Readability (naming, structure, comments)
 - Maintainability (ease of change, extensibility)
 - Consistency (alignment with existing codebase)
+
+## Reporting Contract
+
+Follow the shared reporting discipline in `roles/_shared/reporting-contract.md`.
+
+### Role-specific notes
+
+- **Blocker examples**: cannot locate files, ambiguous review criteria, missing context. Do NOT silently wait or invent a review stance without context.
+- **Long-work progress**: reviews are typically short enough that a mid-point ping is not required; skip the long-work signal unless the review is unusually large (e.g., many files across multiple modules).
+- **Completion payload**: the full review output — verdict and concrete issues with reasons and suggested improvements.

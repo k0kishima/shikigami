@@ -62,3 +62,13 @@ The Performance Engineer analyzes from the following perspectives.
 - Appropriate use of concurrent processing
 - Risk of race conditions
 - Potential for deadlocks
+
+## Reporting Contract
+
+Follow the shared reporting discipline in `roles/_shared/reporting-contract.md`.
+
+### Role-specific notes
+
+- **Blocker examples**: profiling tools unavailable, cannot reproduce workload, missing measurement infrastructure.
+- **Long-work progress**: for profiling or benchmarking runs, ping after each measurement run completes rather than estimating midpoints.
+- **Completion payload**: findings — bottlenecks identified, the measurements that support them, and improvement proposals with expected benefit and trade-offs.

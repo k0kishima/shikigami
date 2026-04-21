@@ -70,6 +70,8 @@ When spawning agents:
 4. Check if a project-specific context file exists at `.shikigami/contexts/{role_name}.md` in the current working directory
 5. Combine the content in this exact order: **role template → shared reporting contract → optional role context file** (skip the context file if it does not exist)
 6. **Substitute the lead name placeholder**: in the combined prompt content, replace all occurrences of `{{team_lead_name}}` with the Orchestrator's current addressable name. Default to the literal string `team-lead` (Claude Code Agent Teams' default `leadAgentId` name-part). If you have explicitly set a different lead name via `TeamCreate`, substitute that value instead.
+
+   After substitution, verify the final prompt contains no remaining `{{team_lead_name}}` literal — an unresolved placeholder would cause the worker to send `SendMessage(to="{{team_lead_name}}")` verbatim, which will fail.
 7. Use the combined (and substituted) content as the spawn prompt
 8. DO NOT use Claude Code's built-in agents (Explore, Plan, etc.)
 9. ONLY use the role templates defined in this system (built-in or custom)

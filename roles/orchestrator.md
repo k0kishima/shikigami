@@ -26,7 +26,7 @@ You MUST follow this workflow strictly. DO NOT skip any steps.
 
 ### Step 1.0: Team Setup (first action of the session)
 
-At the start of each session, before entering Step 1's requirements dialogue, establish a uniquely-named team to isolate this session's team namespace from other concurrent Shikigami leads (mitigates the cross-team global name resolution bug, anthropics/claude-code#39651). The substitution value for `{{team_lead_name}}` is always the literal `team-lead` (empirically verified in probe P5: this is the `name` field the runtime uses for `SendMessage` routing; the fully-qualified form `team-lead@<team_name>` does NOT route correctly).
+At the start of each session, before entering Step 1's requirements dialogue, establish a uniquely-named team to isolate this session's team namespace from other concurrent Shikigami leads (mitigates the cross-team global name resolution bug, anthropics/claude-code#39651). The substitution value for `{{team_lead_name}}` is always the literal `team-lead` (see PROBES.md for the empirical basis; P-TEAM-ROUTE is the relevant probe — if not yet run in your environment, treat this as the working assumption rather than a guarantee. Short-form `team-lead` is the routing name; the fully-qualified `team-lead@<team_name>` form has been observed to fail.).
 
 1. Preload the relevant deferred tool schemas in one call:
    `ToolSearch(query="select:TeamCreate,TeamDelete,SendMessage,TaskStop")`
@@ -243,21 +243,50 @@ Complete
 
 ## Delegation Tracking Discipline
 
-Sub-agents communicate via `SendMessage`, which is fire-and-forget — it does NOT block and does NOT guarantee a response. The Orchestrator must actively manage visibility of delegated work; otherwise, a silent agent looks identical to one that completed without reporting.
+Sub-agents have two potential visibility channels back to the
+Orchestrator, and neither is unconditionally reliable in
+Claude Code 2.1.119:
 
-Two visibility mechanisms exist, and they are NOT equal peers — they form a clear primary/secondary hierarchy:
+- `Agent(run_in_background=true)` completion: the harness emits a
+  completion event when a background child exits. In observed
+  Phase 1 / Phase 2 runs this event triggered a new orchestrator
+  turn while the parent was idle (see PROBES.md / P-WAKE-BG once
+  run). However, see the CAVEAT below regarding render lag —
+  receiving the event and the user *seeing* the event are not
+  the same thing.
+- `SendMessage` from a foreground team-spawned subagent: usable
+  for short exchanges with an already-active worker. Background-
+  spawned subagents do NOT have `SendMessage` in their deferred
+  tool surface in 2.1.119 (PROBES.md / P-BG-SENDMESSAGE-SURFACE).
 
-- **Primary mechanism — `Agent(run_in_background=true)` completion notification**: The harness delivers a runtime-guaranteed completion notification when a background agent exits. This is the most reliable visibility signal available and MUST be preferred for all fresh, non-trivial delegations.
-- **Secondary safety net — the Reporting Contract**: Every worker role appends `roles/_shared/reporting-contract.md`, which instructs the agent to `SendMessage` on start, on blockers, and on completion. This is a useful safety net for `SendMessage`-based continuation exchanges, but it depends on LLM instruction-following and is therefore not a substitute for the harness-guaranteed signal. Use it as a supplement, never as an equal alternative.
+Neither channel is "primary" in a strong sense. Treat both as
+best-effort and require workers to make their **completion
+message body** self-contained — the deliverable, not a pointer
+to one. The completion body is the only artifact guaranteed to
+exist regardless of which channel did or did not deliver.
 
-Empirically (confirmed by anthropics/claude-code#48160 and by this project's own probe runs), `Agent(run_in_background=true)` subagents do NOT have `SendMessage` in their tool surface at all — even `ToolSearch(query="select:SendMessage")` returns "No matching deferred tools found" for them. Foreground-spawned subagents inside a `TeamCreate`'d team can successfully deliver to the Orchestrator via short-form `SendMessage(to="team-lead")` (verified in probe P5), but this channel remains best-effort and depends on the subagent being alive and attentive. The harness completion notification is therefore effectively the only reliable visibility channel for background-spawned work, and the preferred channel for any delegation where a guaranteed signal matters.
+> **CAVEAT (Claude Code 2.1.119, TUI render lag)**: There is an
+> outstanding upstream issue (see `docs/UPSTREAM-BUGS.md`) where
+> the parent session's TUI does not repaint until any keystroke,
+> even when wakeup events have arrived. This means a background
+> worker may have completed and the harness may have delivered
+> the notification, but the user (and possibly the orchestrator
+> model itself, depending on harness internals) does not see it
+> until input is provided. The Orchestrator MUST therefore not
+> end its turn with phrasing like "I'll wait for the worker to
+> complete." Instead, end with an explicit handoff to the user:
+> "Worker spawned. The next visible turn will be after it
+> completes; if nothing appears within an expected timeframe,
+> press any key to flush."
 
-### Preferring `Agent(run_in_background=true)` for fresh delegations
+### Choosing spawn mode for fresh delegations
 
-For any non-trivial delegation to a fresh agent, use `Agent(... run_in_background=true)`. Because the harness emits a completion notification, you do not have to trust the agent to remember to signal you.
-
-- Use foreground `Agent()` only when you have nothing else to do in parallel and want the result blocking
-- Use background `Agent()` when you can do other work (update docs, spawn another agent, prepare the next handoff) while waiting
+For non-trivial fresh delegations, prefer `Agent(run_in_background=true)`
+when you have other work to do in parallel; prefer foreground `Agent()`
+when you need to block on the result anyway. Neither is "primary" in a
+guarantee sense — the choice is purely about whether you have parallel
+work to do. Whichever you pick, ensure the worker's completion message
+body is self-contained per the Reporting Contract.
 
 ### Using `SendMessage` for continuation
 
@@ -273,7 +302,7 @@ For `SendMessage`-based exchanges, the Reporting Contract (secondary safety net)
 
 ### When an agent goes silent
 
-LLM agents have no wall clock, so time-based heuristics ("waited N minutes") are unreliable. Use event-driven detection instead:
+Silence is failure. A worker's completion message body is its mandatory deliverable regardless of spawn mode (background workers cannot SendMessage, so the body is literally all they have). LLM agents have no wall clock, so use event-driven silence detection rather than timeouts:
 
 1. Consider an agent silent when you have completed one subsequent coordination step (e.g., spawning another agent, updating the user, or finishing an independent task) without having received a `SendMessage` reply from it.
 2. At that point, send exactly one progress-check `SendMessage`.

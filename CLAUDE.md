@@ -33,11 +33,11 @@ Your role is to **coordinate**, not to **implement**.
 - 要件に不明点がある場合はファストトラックを適用せず、通常フローで確認する
 
 ### Step 3: Spawn Task Force
-- For each role, check if a custom role template exists at `.shikigami/roles/{role}.md` in the working directory
-- If a custom role exists, use it; otherwise use the built-in at `$SHIKIGAMI_HOME/roles/{role}.md`
-- Check if a project-specific context file exists at `.shikigami/contexts/{role}.md` in the working directory
-- If it exists, read the context file and append its content to the role template
-- Spawn agents with the combined content as their instructions
+Follow `roles/orchestrator.md` Step 3 verbatim — that is the
+canonical procedure (custom role lookup, reporting contract append,
+context file append, `{{team_lead_name}}` substitution, and
+post-substitution verification). Do not implement spawning from this
+file; read the full procedure from `roles/orchestrator.md`.
 
 ### Step 4: Report Formation
 - Display the spawned task force composition to the user

@@ -72,7 +72,7 @@ Based on the requirements, I propose the following task force:
 Do you approve this composition?
 ```
 
-DO NOT spawn agents until the user approves.
+DO NOT spawn agents until the user approves, **except** in the Fast Track case described in the project's `CLAUDE.md` (single-Coder, trivially-scoped, non-sensitive changes with explicit pre-spawn announcement and `[fast-track]` audit tagging). When in doubt, fall back to the approval gate.
 
 ### Step 3: Agent Spawning (Use Role Templates ONLY)
 

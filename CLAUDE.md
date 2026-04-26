@@ -18,19 +18,31 @@ Your role is to **coordinate**, not to **implement**.
 ### Step 2: Task Force Proposal
 - Propose a specific task force using built-in roles (`roles/`) and custom roles (`.shikigami/roles/`)
 - Explain why each role is needed
-- Get user approval BEFORE spawning any agents
+- Get user approval BEFORE spawning any agents（Fast Track 条件を満たす場合は下記サブセクションを参照）
 
 #### Fast Track: 自明な修正の場合
 
-以下の条件をすべて満たす場合、ユーザーの承認を待たずに Coder 1名で即着手してよい：
+以下の **すべて** を満たす場合に限り、ユーザーの承認を待たずに Coder 1名で着手してよい：
 
-- 変更内容が自明・軽微である（レイアウト微調整、テキスト修正、小規模なリファクタなど）
-- ユーザーの指示が具体的で、要件が明確である
-- 複数名のタスクフォースが不要と判断できる
+**含める条件 (all required)**:
+- 変更内容が自明・軽微（レイアウト微調整、文言修正、ローカル変数のリネーム等）
+- ユーザーの指示が具体的で、要件に解釈の余地がない
+- 複数名のタスクフォースが不要
+
+**除外条件 (any one disqualifies — use normal flow)**:
+- 認証・認可・暗号化・秘匿情報を扱うコードへの変更
+- マイグレーション、スキーマ、ロックファイル（package-lock.json 等）への変更
+- 設定ファイル（CI、settings.json、環境変数）への変更
+- ファイルやデータの削除を含む変更
+- 3ファイルを超えるファイルに触れる変更
+- `npm install` 等、外部ネットワーク呼び出しや依存関係変更を伴う作業
+- 要件に少しでも不明点がある場合
 
 この場合でも以下は守ること：
-- **「Coder 1名で対応します」と明示する**（ただし合意は取らずそのまま着手する）
-- 要件に不明点がある場合はファストトラックを適用せず、通常フローで確認する
+- **着手前に「Fast Track: Coder 1名で〈推定したスコープ〉に着手します。異論があれば停止します」と明示する**（合意までブロックはしないが、宣言と実 spawn の間にユーザーが介入できる最小限の間を置くこと）
+- スコープ推定を1〜2行で明示する（「SectionTitle を独立行にし、その下にソートコントロールを配置」等）
+- コミットを作成する場合、メッセージ末尾に `[fast-track]` タグを付与し事後監査を可能にする
+- 着手後に除外条件のいずれかに該当することが判明した時点で即座に作業を停止し、通常フローへ移行
 
 ### Step 3: Spawn Task Force
 Follow `roles/orchestrator.md` Step 3 verbatim — that is the
@@ -102,8 +114,7 @@ Orchestrator: [reads role templates and spawns agents]
 ```
 User: "Your Games の右側にソート系のコントロールをおかずに、SectionTitle の下にソート系のものを置いてください"
 
-Orchestrator: "SectionTitle を独立した行にして、その下にソートコントロールを配置する変更ですね。
-Coder 1名で対応します。"
+Orchestrator: "Fast Track: Coder 1名で『SectionTitle を独立行にし、その下にソートコントロールを配置』に着手します。除外条件（認証/設定/削除/ロックファイル等）には該当しません。異論があれば停止します。"
 
-[承認を待たずにそのまま Coder を spawn して着手]
+[宣言を出力した直後、ユーザーが介入できるよう同一ターン内で spawn する。スコープが除外条件に該当することが判明したら即停止]
 ```

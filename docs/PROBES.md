@@ -32,8 +32,10 @@ Each probe is one H2 section with the following required fields:
 ## Discipline
 
 1. No role file (`roles/*.md`, `CLAUDE.md`, `roles/_shared/*.md`) may
-   say "verified", "empirically", "confirmed", "guaranteed", or
-   "always" about runtime behavior unless a `P-…` probe row supports it.
+   say "verified", "empirically", "confirmed", "guaranteed", "primary",
+   or "always" about runtime behavior unless a `P-…` probe row supports
+   it. ("primary" is on this list because it leaked through Phase 1
+   review undetected and motivated the Phase 2 doctrine reset.)
 2. Removing a probe row from `PROBES.md` requires removing or
    rewriting every dependent claim in the same commit.
 3. A FAILing probe is not deleted — it stays with `Result: FAIL` and
@@ -148,3 +150,33 @@ Each probe is one H2 section with the following required fields:
   alternative explanation: any subagent's stdout/turn output is
   rendered to the parent the same way regardless of whether it went
   through SendMessage.
+
+## P-TEAM-ROUTE
+
+- **Probe ID**: P-TEAM-ROUTE
+- **Authored**: 2026-04-26
+- **Last run**: —
+- **Hypothesis**: When sending a `SendMessage` to a team lead from a
+  foreground team-spawned subagent, the bare short-form name
+  `team-lead` routes correctly while the fully-qualified
+  `team-lead@<team_name>` form does not route to the lead.
+- **Setup**: See `docs/probes/p-team-route.md` for full reproduction
+  steps. Summary: from a fresh session, `TeamCreate` a probe team;
+  foreground-spawn an `Agent` that preloads `SendMessage` via
+  `ToolSearch`, sends one ping with `to="team-lead@<team_name>"` and
+  one ping with `to="team-lead"`, then exits; the lead observes
+  which ping(s) arrive in its conversation.
+- **Expected outcome**: Only the short-form ping arrives; the
+  qualified-form ping is silently dropped (or returns an error from
+  the worker side).
+- **Observed outcome (last run)**: —
+- **Result**: PENDING
+- **Environment**: not yet run; record at first execution.
+- **Linked commit / PR**: this commit (will be filled in by the next
+  Reviewer cycle if/when run).
+- **Notes**: This probe formalizes the cited behavior in
+  `roles/orchestrator.md:29`. The behavior was reported anecdotally
+  during the original `7d3e354` ("anchor substitution value to
+  literal 'team-lead'") commit but never reproduced from a script in
+  this repo. Until run, the doctrine treats the qualified-form-fails
+  claim as a working assumption.
